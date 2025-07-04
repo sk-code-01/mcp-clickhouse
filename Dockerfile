@@ -33,11 +33,13 @@ FROM python:3.13-bookworm
 # Set the working directory
 WORKDIR /app
 
-# Copy the virtual environment from the builder stage
-COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app /app
 
-# Place executables in the environment at the front of the path
+# Ensure Python sees the src directory
+ENV PYTHONPATH="${PYTHONPATH}:/app/src"
+
+# Add the venv to the path
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Run the MCP ClickHouse server by default
-CMD ["python", "-m", "mcp_clickhouse.main"]
+# Run the MCP SSE server
+CMD ["fastmcp", "run", "mcp_clickhouse.mcp_server:mcp", "--transport", "sse"]
